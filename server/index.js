@@ -63,7 +63,7 @@ var removeMenuItems = function(restaurant) {
 
 
 //Mongoose main for DB connection (pod)
-mongoose.connect('mongodb://'+MONGO_URL+'/'+MONGO_DATABASE, 
+mongoose.connect('mongodb://'+MONGO_URL+'/'+MONGO_DATABASE+'?authSource=admin', 
 { 
   useNewUrlParser: true,
   auth: {
