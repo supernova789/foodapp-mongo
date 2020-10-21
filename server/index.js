@@ -25,12 +25,6 @@ const {
 }  = process.env;
 
 
-const {
-  APP_DATA_MENUITEMS_SERVICE_PORT,
-  APP_DATA_MOREINFO_SERVICE_PORT
-}  = process.env;
-
-
 const config = require('../config');
 
 var open = require('open');
