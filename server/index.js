@@ -6,16 +6,29 @@ var request = require('request');
 var url = require('url');
 
 //Mongo DB
-const mongoose = require("mongoose");
-const db = mongoose.connection;
+// const mongoose = require("mongoose");
+// const db = mongoose.connection;
+
+// const {
+//   MONGO_URL,
+//   MONGO_DATABASE,
+//   MONGO_USERNAME,
+//   MONGO_PASSWORD
+// }  = process.env;
+
 
 const {
-  MONGO_URL,
-  MONGO_DATABASE,
-  MONGO_USERNAME,
-  MONGO_PASSWORD
+  HOST_NAME_MENUITEMS,
+  HOST_NAME_MOREINFO,
+  APP_DATA_MENUITEMS_SERVICE_PORT,
+  APP_DATA_MOREINFO_SERVICE_PORT
 }  = process.env;
 
+
+const {
+  APP_DATA_MENUITEMS_SERVICE_PORT,
+  APP_DATA_MOREINFO_SERVICE_PORT
+}  = process.env;
 
 
 const config = require('../config');
@@ -63,37 +76,36 @@ var removeMenuItems = function(restaurant) {
 
 
 //Mongoose main for DB connection (pod)
-mongoose.connect('mongodb://'+MONGO_URL+'/'+MONGO_DATABASE+'?authSource=admin', 
-{ 
-  useNewUrlParser: true,
-  auth: {
-    user: MONGO_USERNAME,
-    password: MONGO_PASSWORD
-   } 
-}
-).then(() => {
-    console.log("DB connected");
-}).catch((err)=> {
-    console.log('Can not connect to the database'+err)
-})
+// mongoose.connect('mongodb://'+MONGO_URL+'/'+MONGO_DATABASE+'?authSource=admin', 
+// { 
+//   useNewUrlParser: true,
+//   auth: {
+//     user: MONGO_USERNAME,
+//     password: MONGO_PASSWORD
+//    } 
+// }
+// ).then(() => {
+//     console.log("DB connected");
+// }).catch((err)=> {
+//     console.log('Can not connect to the database'+err)
+// })
 
 
 
 
-  db.once("open", function() {
+  // db.once("open", function() {
 
-    db.collection('inventory').count(function (err, count) {
-        if (err) throw err;    
-        console.log('Total moreinfo Rows: ' + count);
-    });
+  //   db.collection('inventory').count(function (err, count) {
+  //       if (err) throw err;    
+  //       console.log('Total moreinfo Rows: ' + count);
+  //   });
 
-    db.collection('menuitems').count(function (err, count) {
-      if (err) throw err;    
-      console.log('Total menuitems Rows: ' + count);
-  });
+  //   db.collection('menuitems').count(function (err, count) {
+  //     if (err) throw err;    
+  //     console.log('Total menuitems Rows: ' + count);
+  // });
+  // }); 
 
-
-  }); 
 
 
 exports.start = function(PORT, STATIC_DIR, DATA_FILE, TEST_DIR) {
@@ -113,54 +125,53 @@ exports.start = function(PORT, STATIC_DIR, DATA_FILE, TEST_DIR) {
 // API Call to fetch menu items
 app.get(API_MENU_ITEMS, function (req, res) {
 
-  db.collection('menuitems').find().toArray()
-      .then(result => {
-        console.log(result);
-        res.send(result);
-      })
-      .catch(error => console.error(error))
+  /* From mongoDb */
+  // db.collection('menuitems').find().toArray()
+  //     .then(result => {
+  //       console.log(result);
+  //       res.send(result);
+  //     })
+  //     .catch(error => console.error(error))
 
 
   /* Old code to fetch data through API Service */
-  // siteHost_m_items = req.get('host');
-  // console.log('Host for menuitems is '+siteHost_m_items);
+  siteHost_m_items = req.get('host');
+  console.log('Host for menuitems is '+siteHost_m_items);
 
-  // if(siteHost_m_items.includes(':')){
+  if(siteHost_m_items.includes(':')){
 
-  //   var splitPath_m_items = siteHost_m_items.split(":");
-  //   var splitHost_m_items = splitPath_m_items[0];
-  //   var splitPort_m_items = splitPath_m_items[1];
-  //   console.log('splitHost menuitems :'+splitHost_m_items);
-  //   console.log('splitPort menuitems:'+splitPort_m_items);
+    var splitPath_m_items = siteHost_m_items.split(":");
+    var splitHost_m_items = splitPath_m_items[0];
+    var splitPort_m_items = splitPath_m_items[1];
+    console.log('splitHost menuitems :'+splitHost_m_items);
+    console.log('splitPort menuitems:'+splitPort_m_items);
 
 
-  //     request('http://'+splitHost_m_items+':'+config.items.port+'/api/menuitems', (error, response, body) => {
+      request('http://'+HOST_NAME_MENUITEMS+':'+APP_DATA_MENUITEMS_SERVICE_PORT+'/api/menuitems', (error, response, body) => {
     
-  //       if (!error && response.statusCode == 200) {
+        if (!error && response.statusCode == 200) {
     
-  //           result = JSON.stringify(JSON.parse(body));
-  //           res.send(result);
-  //       } else {
-  //          res.send(error);
-  //       }
-  //   });
+            result = JSON.stringify(JSON.parse(body));
+            res.send(result);
+        } else {
+           res.send(error);
+        }
+    });
 
-  // }else{
+  }else{
 
-  //   request('http://'+siteHost_m_items+':'+config.items.port+'/api/menuitems', (error, response, body) => {
+    request('http://'+HOST_NAME_MENUITEMS+':'+APP_DATA_MENUITEMS_SERVICE_PORT+'/api/menuitems', (error, response, body) => {
     
-  //     if (!error && response.statusCode == 200) {
+      if (!error && response.statusCode == 200) {
   
-  //         result = JSON.stringify(JSON.parse(body));
-  //         res.send(result);
-  //     } else {
-  //        res.send(error);
-  //     }
-  // });
+          result = JSON.stringify(JSON.parse(body));
+          res.send(result);
+      } else {
+         res.send(error);
+      }
+  });
 
-  // }
-
-
+  }
 
 });   
 
@@ -180,59 +191,57 @@ app.use(function(req, res, next) {
 // API Call to fetch more info
 app.get(API_MORE_INFO, function (req, res) {
 
-  db.collection('inventory').find().toArray()
-      .then(result => {
-        console.log(result);
-        res.send(result);
-      })
-      .catch(error => console.error(error))
+   /* From mongoDb */
+  // db.collection('inventory').find().toArray()
+  //     .then(result => {
+  //       console.log(result);
+  //       res.send(result);
+  //     })
+  //     .catch(error => console.error(error))
 
 
   //---***Old Code for API***
-  // var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-  // siteHost_m_info = req.get('host');
-  // var protocol = req.protocol;
-  // var originalLink = req.originalUrl;
+  var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+  siteHost_m_info = req.get('host');
+  var protocol = req.protocol;
+  var originalLink = req.originalUrl;
 
-  // console.log('Host for moreinfo is '+siteHost_m_info);
+  console.log('Host for moreinfo is '+siteHost_m_info);
 
-  // if(siteHost_m_info.includes(':')){
-  //   var splitPath_m_info = siteHost_m_info.split(":");
-  //   var splitHost_m_info = splitPath_m_info[0];
-  //   var splitPort_m_info = splitPath_m_info[1];
-  //   console.log('splitHost moreinfo :'+splitHost_m_info);
-  //   console.log('splitPort moreinfo :'+splitPort_m_info);
+  if(siteHost_m_info.includes(':')){
+    var splitPath_m_info = siteHost_m_info.split(":");
+    var splitHost_m_info = splitPath_m_info[0];
+    var splitPort_m_info = splitPath_m_info[1];
+    console.log('splitHost moreinfo :'+splitHost_m_info);
+    console.log('splitPort moreinfo :'+splitPort_m_info);
 
-  //     request('http://'+splitHost_m_info+':'+config.info.port+'/api/moreinfo', (error, response, body) => {
+      request('http://'+HOST_NAME_MOREINFO+':'+APP_DATA_MOREINFO_SERVICE_PORT+'/api/moreinfo', (error, response, body) => {
     
-  //       if (!error && response.statusCode == 200) {
+        if (!error && response.statusCode == 200) {
     
-  //           result = JSON.stringify(JSON.parse(body));
-  //           res.send(result);
+            result = JSON.stringify(JSON.parse(body));
+            res.send(result);
     
-  //       } else {
-  //          res.send(error); 
-  //       }
-  //   });
+        } else {
+           res.send(error); 
+        }
+    });
 
-  // }else{
+  }else{
 
-  //   request('http://'+siteHost_m_info+':'+config.info.port+'/api/moreinfo', (error, response, body) => {
+    request('http://'+HOST_NAME_MOREINFO+':'+APP_DATA_MOREINFO_SERVICE_PORT+'/api/moreinfo', (error, response, body) => {
     
-  //     if (!error && response.statusCode == 200) {
+      if (!error && response.statusCode == 200) {
   
-  //         result = JSON.stringify(JSON.parse(body));
-  //         res.send(result);
+          result = JSON.stringify(JSON.parse(body));
+          res.send(result);
   
-  //     } else {
-  //        res.send(error); 
-  //     }
-  // });
+      } else {
+         res.send(error); 
+      }
+  });
 
-  // }
-
-
-
+  }
 
 });
 
