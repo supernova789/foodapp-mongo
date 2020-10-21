@@ -137,15 +137,19 @@ app.get(API_MENU_ITEMS, function (req, res) {
     var splitPath_m_items = siteHost_m_items.split(":");
     var splitHost_m_items = splitPath_m_items[0];
     var splitPort_m_items = splitPath_m_items[1];
-    console.log('splitHost menuitems :'+splitHost_m_items);
-    console.log('splitPort menuitems:'+splitPort_m_items);
+    // console.log('splitHost menuitems :'+splitHost_m_items);
+    // console.log('splitPort menuitems:'+splitPort_m_items);
+
+    console.log('Port menuitems:'+APP_DATA_MENUITEMS_SERVICE_PORT);
+    console.log('Host menuitems:'+HOST_NAME_MENUITEMS);
 
 
-      request('http://'+HOST_NAME_MENUITEMS+':'+APP_DATA_MENUITEMS_SERVICE_PORT+'/api/menuitems', (error, response, body) => {
+      request('http://aa493d387139c11ebbb7a02a987ba0e9-320197688.ap-south-1.elb.amazonaws.com:8080/api/menuitems', (error, response, body) => {
     
         if (!error && response.statusCode == 200) {
     
             result = JSON.stringify(JSON.parse(body));
+            console.log("Result is "+result);
             res.send(result);
         } else {
            res.send(error);
@@ -154,11 +158,12 @@ app.get(API_MENU_ITEMS, function (req, res) {
 
   }else{
 
-    request('http://'+HOST_NAME_MENUITEMS+':'+APP_DATA_MENUITEMS_SERVICE_PORT+'/api/menuitems', (error, response, body) => {
+    request('http://aa493d387139c11ebbb7a02a987ba0e9-320197688.ap-south-1.elb.amazonaws.com:8080/api/menuitems', (error, response, body) => {
     
       if (!error && response.statusCode == 200) {
   
           result = JSON.stringify(JSON.parse(body));
+          console.log("Result is "+result);
           res.send(result);
       } else {
          res.send(error);
